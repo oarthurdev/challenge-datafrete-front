@@ -18,8 +18,14 @@
         </form>
         </div>
         <div class="actions md-layout md-alignment-center-space-between">
-          <md-button class="md-raised md-primary" id="btn-logar" @click="logar">Log in</md-button>
-        </div>
+          <md-button class="md-raised md-primary" style="width: 100%" id="btn-logar" @click="logar">Log in</md-button>
+        </div><br /><br />
+        <div class="footer">
+          <center>
+            <span>Username:<b> admin</b></span><br />
+            <span>Password:<b> admin</b></span>
+          </center>
+      </div>
     </md-content>
     <div class="background" />
   </div>
@@ -32,7 +38,6 @@ import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
 require('vue-awesome-notifications/dist/styles/style.css')
-import { launchToast } from 'src/functions/toast'
 
 Vue.use(VueMaterial)
 export default {
@@ -61,12 +66,9 @@ export default {
       if (this.user.email && this.user.password) {
         this.$store.dispatch('auth/login', this.user).then(
           (response) => {
-            if (response.invalidPass) {
-              self.invalidPass = true
-              launchToast(1, 'Invalid password, try again.')
-            }
-            else if (response.success == false) {
-              self.$toast.error('Please select the captcha.', {
+            console.log(response)
+            if (!response.success || !response.auth) {
+              self.$toast.error('Wrong username or password, try again.', {
                 position: 'bottom-right',
                 timeout: 5000,
                 closeOnClick: true,
@@ -81,13 +83,9 @@ export default {
                 rtl: false
               })
               return false
-            } else if (response.noExist || !response.auth) {
-              launchToast(1, 'Wrong email, try again.')
-              return false
             } else if(response.auth) {
               self.invalidPass = false
               localStorage.setItem('token', response.token)
-              localStorage.setItem('email', response.email)
               location.href = '/dashboard'
             } 
           },
